@@ -6,5 +6,5 @@ import com.micr.userver.documentobject.UserDO;
 
 @Component
 public interface UsersCollection extends MongoRepository<UserDO, String> {
-    
+    UserDO findByEmail(String email);
 }

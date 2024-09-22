@@ -3,6 +3,7 @@ package com.micr.userver.documentobject;
 import com.mongodb.internal.connection.Time;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.stereotype.Component;
@@ -25,7 +26,7 @@ public class UserDO {
     @Field("fullname")
     private String fullname;
 
-    @NonNull  // Ensures the field is not null
+    @Indexed(unique = true, background = true)
     @Field("email")
     private String email;
 
