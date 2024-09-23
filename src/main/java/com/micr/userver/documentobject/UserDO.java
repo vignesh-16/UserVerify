@@ -26,7 +26,7 @@ public class UserDO {
     @Field("fullname")
     private String fullname;
 
-    @Indexed(unique = true, background = true)
+    @Indexed(unique = true)
     @Field("email")
     private String email;
 

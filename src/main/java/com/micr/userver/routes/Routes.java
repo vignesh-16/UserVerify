@@ -3,6 +3,9 @@ package com.micr.userver.routes;
 import com.micr.userver.collections.UsersCollection;
 import com.micr.userver.documentobject.LoginParamsDO;
 import com.micr.userver.documentobject.UserDO;
+import com.mongodb.DuplicateKeyException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +23,7 @@ import java.util.Objects;
 @RequestMapping("/auth")
 public class Routes {
 
+    private static final Logger log = LogManager.getLogger(Routes.class);
     @Autowired
     UsersCollection userDb;
 
@@ -54,19 +58,31 @@ public class Routes {
     }
 
     @PostMapping("/createuser")
-    public UserDO postMethodName(@RequestBody UserDO req) {
-        UserDO newUser = new UserDO (
-                req.getFirstname(),
-                req.getLastname(),
-                req.getFullname(),
-                req.getEmail(),
-                req.getPassword()
-        );
-        System.out.println("Requested user: "+newUser);
-        UserDO savedUser = userDb.save(newUser);
-        System.out.println("Newly created user: "+savedUser);
-        return savedUser;
+    public ResponseEntity<?> postMethodName(@RequestBody UserDO req) {
+        try {
+            UserDO newUser = new UserDO (
+                    req.getFirstname(),
+                    req.getLastname(),
+                    req.getFullname(),
+                    req.getEmail(),
+                    req.getPassword()
+            );
+            System.out.println("Requested user: "+newUser);
+            UserDO savedUser = userDb.save(newUser);
+            System.out.println("Newly created user: "+savedUser);
+            HashMap<String, UserDO> response = new HashMap<>();
+            response.put("newUser", savedUser);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            log.error(e.getClass().getSimpleName());
+            if (e.getClass().getSimpleName().equals("DuplicateKeyException")) {
+                HashMap<String, String> response = new HashMap<>();
+                response.put("Error", "User email already registered!");
+                return new ResponseEntity<>(response,HttpStatus.CONFLICT);
+            } else {
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
     }
-    
-    
+
 }
