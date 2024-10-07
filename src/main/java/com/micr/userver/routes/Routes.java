@@ -5,6 +5,7 @@ import com.micr.userver.collections.UsersCollection;
 import com.micr.userver.documentobject.LoginParamsDO;
 import com.micr.userver.documentobject.LogsDO;
 import com.micr.userver.documentobject.UserDO;
+import com.micr.userver.services.LoggingService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -41,13 +42,7 @@ public class Routes {
                 HashMap<String, String> ErrorMessage = new HashMap<>();
                 ErrorMessage.put("RequestedAt", ""+System.currentTimeMillis());
                 ErrorMessage.put("Message", "User not found!");
-                LogsDO userLogs = logsDb.findByUserEmail(request.getEmail());
-                LogsDO.Actions action = new LogsDO.Actions();
-                action.setAction("login");
-                action.setStatus("Failure");
-                action.setReason("user email not found");
-                action.setTimedAt(System.currentTimeMillis());
-
+                LoggingService.addUnknownUserLoginAttempts(request.getEmail());
                 return new ResponseEntity<>(ErrorMessage, HttpStatus.NOT_FOUND);
             } else if (! user.getPassword().equals(request.getPassword())) {
                 HashMap<String, String> ErrorMessage = new HashMap<>();
