@@ -4,7 +4,7 @@ public interface LoggingService {
 
     public void addSuccessfulLoginForUser(String userId);
 
-    public void addUnsuccessfulLoginForUser(String userId, String reason);
+    public void addUnsuccessfulLoginForUser(String userId, String email, String reason);
 
     public void addUnknownUserLoginAttempts(String email);
 

@@ -1,15 +1,21 @@
 package com.micr.userver.services;
 
 import com.micr.userver.collections.LogsCollection;
+import com.micr.userver.collections.UsersCollection;
 import com.micr.userver.documentobject.LogsDO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 
+@Component
 public class LoggingServiceImpl implements  LoggingService{
 
     @Autowired
     LogsCollection logsDb;
+
+    @Autowired
+    UsersCollection userdb;
 
     @Override
     public void addSuccessfulLoginForUser(String userId) {
@@ -22,8 +28,29 @@ public class LoggingServiceImpl implements  LoggingService{
     }
 
     @Override
-    public void addUnsuccessfulLoginForUser(String userId, String reason) {
+    public void addUnsuccessfulLoginForUser(String userId, String email, String reason) {
         LogsDO userLogs = logsDb.findByUserId(userId);
+        LogsDO.Actions action = new LogsDO.Actions();
+        action.setAction("login");
+        action.setStatus("Failure");
+        action.setReason(reason);
+        action.setTimedAt(System.currentTimeMillis());
+        if (userLogs == null) {
+            userLogs = new LogsDO();
+            userLogs.setUserId(userId);
+            userLogs.setUserEmail(email);
+            ArrayList<LogsDO.Actions> actionsCollection = new ArrayList<>();
+            actionsCollection.add(action);
+            userLogs.setActions(actionsCollection);
+            userLogs.setCreatedAt(System.currentTimeMillis());
+            logsDb.insert(userLogs);
+        } else {
+            ArrayList<LogsDO.Actions> existingActions = userLogs.getActions();
+            existingActions.add(action);
+            userLogs.setLastModified(System.currentTimeMillis());
+            userLogs.setActions(existingActions);
+            logsDb.save(userLogs);
+        }
     };
 
     @Override

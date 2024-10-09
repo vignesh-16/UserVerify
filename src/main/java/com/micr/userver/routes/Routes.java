@@ -3,9 +3,8 @@ package com.micr.userver.routes;
 import com.micr.userver.collections.LogsCollection;
 import com.micr.userver.collections.UsersCollection;
 import com.micr.userver.documentobject.LoginParamsDO;
-import com.micr.userver.documentobject.LogsDO;
 import com.micr.userver.documentobject.UserDO;
-import com.micr.userver.services.LoggingService;
+import com.micr.userver.services.LoggingServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -18,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.HashMap;
-import java.util.Objects;
 
 
 @RestController()
@@ -32,6 +30,9 @@ public class Routes {
     @Autowired
     LogsCollection logsDb;
 
+    @Autowired
+    LoggingServiceImpl logService;
+
     @PostMapping("/login")
     public ResponseEntity<?> postMethodName(@RequestBody LoginParamsDO request) {
         try {
@@ -42,12 +43,13 @@ public class Routes {
                 HashMap<String, String> ErrorMessage = new HashMap<>();
                 ErrorMessage.put("RequestedAt", ""+System.currentTimeMillis());
                 ErrorMessage.put("Message", "User not found!");
-                LoggingService.addUnknownUserLoginAttempts(request.getEmail());
+                logService.addUnknownUserLoginAttempts(request.getEmail());
                 return new ResponseEntity<>(ErrorMessage, HttpStatus.NOT_FOUND);
-            } else if (! user.getPassword().equals(request.getPassword())) {
+            } else if (!user.getPassword().equals(request.getPassword())) {
                 HashMap<String, String> ErrorMessage = new HashMap<>();
                 ErrorMessage.put("RequestedAt", ""+System.currentTimeMillis());
-                ErrorMessage.put("Message", "Authentication key provided does not match!");
+                ErrorMessage.put("Message", "Password does not match!");
+                logService.addUnsuccessfulLoginForUser(user.getId(), user.getEmail(), ErrorMessage.get("Message"));
                 return new ResponseEntity<>(ErrorMessage, HttpStatus.UNAUTHORIZED);
             }
             return new ResponseEntity<>(HttpStatus.OK);

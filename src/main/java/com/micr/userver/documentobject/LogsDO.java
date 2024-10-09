@@ -56,7 +56,7 @@ public class LogsDO {
     }
 
     @Id
-    private String id = new ObjectId().toHexString();
+    private String id;
  
     @Field("userId")
     private String userId;
@@ -119,6 +119,10 @@ public class LogsDO {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public LogsDO() {
+        this.id = new ObjectId().toHexString();
     }
 
     @Override
