@@ -34,29 +34,27 @@ public class Routes {
     LoggingServiceImpl logService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> postMethodName(@RequestBody LoginParamsDO request) {
+    public ResponseEntity<?> userLogin(@RequestBody LoginParamsDO request) {
         try {
             UserDO user = null;
             user = userDb.findByEmail(request.getEmail());
-            System.out.println("User with matching email found!!!"+user);
+            log.info("User with matching email found!!!: {}", user);
+            HashMap<String, String> responseMessage = new HashMap<>();
+            responseMessage.put("RequestedAt", ""+System.currentTimeMillis());
             if (user == null) {
-                HashMap<String, String> ErrorMessage = new HashMap<>();
-                ErrorMessage.put("RequestedAt", ""+System.currentTimeMillis());
-                ErrorMessage.put("Message", "User not found!");
+                responseMessage.put("Message", "User not found!");
                 logService.addUnknownUserLoginAttempts(request.getEmail());
-                return new ResponseEntity<>(ErrorMessage, HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(responseMessage, HttpStatus.NOT_FOUND);
             } else if (!user.getPassword().equals(request.getPassword())) {
-                HashMap<String, String> ErrorMessage = new HashMap<>();
-                ErrorMessage.put("RequestedAt", ""+System.currentTimeMillis());
-                ErrorMessage.put("Message", "Password does not match!");
-                logService.addUnsuccessfulLoginForUser(user.getId(), user.getEmail(), ErrorMessage.get("Message"));
-                return new ResponseEntity<>(ErrorMessage, HttpStatus.UNAUTHORIZED);
+                responseMessage.put("Message", "Password does not match!");
+                logService.addUnsuccessfulLoginForUser(user.getId(), user.getEmail(), responseMessage.get("Message"));
+                return new ResponseEntity<>(responseMessage, HttpStatus.UNAUTHORIZED);
             }
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             throw new RuntimeException("Trouble processing request:\n"+e);
         } finally {
-            System.out.println("Request processed!");
+            log.info("Request processed!");
         }
     }
     
@@ -66,20 +64,9 @@ public class Routes {
     }
 
     @PostMapping("/createuser")
-    public ResponseEntity<?> postMethodName(@RequestBody UserDO req) {
+    public ResponseEntity<?> createNewUser(@RequestBody UserDO req) {
         try {
-            UserDO newUser = new UserDO (
-                    req.getFirstname(),
-                    req.getLastname(),
-                    req.getFullname(),
-                    req.getEmail(),
-                    req.getPassword()
-            );
-            System.out.println("Requested user: "+newUser);
-            UserDO savedUser = userDb.save(newUser);
-            System.out.println("Newly created user: "+savedUser);
-            HashMap<String, UserDO> response = new HashMap<>();
-            response.put("newUser", savedUser);
+
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getClass().getSimpleName());
