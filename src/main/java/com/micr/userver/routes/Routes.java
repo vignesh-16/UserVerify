@@ -5,6 +5,7 @@ import com.micr.userver.collections.UsersCollection;
 import com.micr.userver.documentobject.LoginParamsDO;
 import com.micr.userver.documentobject.UserDO;
 import com.micr.userver.services.LoggingServiceImpl;
+import com.micr.userver.services.UserServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,9 @@ public class Routes {
     private static final Logger log = LogManager.getLogger(Routes.class);
     @Autowired
     UsersCollection userDb;
+
+    @Autowired
+    UserServiceImpl userService;
 
     @Autowired
     LogsCollection logsDb;
@@ -64,10 +68,16 @@ public class Routes {
     }
 
     @PostMapping("/createuser")
-    public ResponseEntity<?> createNewUser(@RequestBody UserDO req) {
+    public ResponseEntity<?> createNewUser(@RequestBody UserDO req) throws RuntimeException {
         try {
-
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            HashMap<String, UserDO> status = new HashMap<>();
+            UserDO response = userService.createNewUser(req);
+            if (response != null) {
+                status.put("newUser", response);
+            } else {
+                throw new RuntimeException("Could not create new user");
+            }
+            return new ResponseEntity<>(status, HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getClass().getSimpleName());
             if (e.getClass().getSimpleName().equals("DuplicateKeyException")) {

@@ -17,6 +17,7 @@ public class UserServiceImpl implements UserService {
     UsersCollection userDb;
 
     public UserDO createNewUser(UserDO request) {
+        UserDO status = new UserDO();
         try {
             UserDO newUser = new UserDO (
                     request.getFirstname(),
@@ -28,12 +29,12 @@ public class UserServiceImpl implements UserService {
             System.out.println("requested user: "+newUser);
             UserDO savedUser = userDb.save(newUser);
             System.out.println("Newly created user: "+savedUser);
-            HashMap<String, UserDO> response = new HashMap<>();
-            response.put("newUser", savedUser);
+            status = savedUser;
         } catch (Exception e) {
             log.error(e.getClass().getSimpleName());
+            status = null;
         }
-        return new UserDO();
+        return status;
     }
 
 }
