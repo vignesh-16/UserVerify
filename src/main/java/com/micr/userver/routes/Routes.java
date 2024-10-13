@@ -32,28 +32,13 @@ public class Routes {
     UserServiceImpl userService;
 
     @Autowired
-    LogsCollection logsDb;
-
-    @Autowired
     LoggingServiceImpl logService;
 
     @PostMapping("/login")
     public ResponseEntity<?> userLogin(@RequestBody LoginParamsDO request) {
         try {
-            UserDO user = null;
-            user = userDb.findByEmail(request.getEmail());
-            log.info("User with matching email found!!!: {}", user);
-            HashMap<String, String> responseMessage = new HashMap<>();
-            responseMessage.put("RequestedAt", ""+System.currentTimeMillis());
-            if (user == null) {
-                responseMessage.put("Message", "User not found!");
-                logService.addUnknownUserLoginAttempts(request.getEmail());
-                return new ResponseEntity<>(responseMessage, HttpStatus.NOT_FOUND);
-            } else if (!user.getPassword().equals(request.getPassword())) {
-                responseMessage.put("Message", "Password does not match!");
-                logService.addUnsuccessfulLoginForUser(user.getId(), user.getEmail(), responseMessage.get("Message"));
-                return new ResponseEntity<>(responseMessage, HttpStatus.UNAUTHORIZED);
-            }
+
+
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             throw new RuntimeException("Trouble processing request:\n"+e);
@@ -79,14 +64,9 @@ public class Routes {
             }
             return new ResponseEntity<>(status, HttpStatus.OK);
         } catch (Exception e) {
-            log.error(e.getClass().getSimpleName());
-            if (e.getClass().getSimpleName().equals("DuplicateKeyException")) {
-                HashMap<String, String> response = new HashMap<>();
-                response.put("Error", "User email already registered!");
-                return new ResponseEntity<>(response,HttpStatus.CONFLICT);
-            } else {
-                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
+            log.error("{} {}", e.getClass().getSimpleName(), e.getMessage());
+            HashMap<String, String> response = new HashMap<>();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
