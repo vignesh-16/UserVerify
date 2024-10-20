@@ -37,9 +37,16 @@ public class Routes {
     @PostMapping("/login")
     public ResponseEntity<?> userLogin(@RequestBody LoginParamsDO request) {
         try {
-
-
-            return new ResponseEntity<>(HttpStatus.OK);
+            HashMap<String, String> response = userService.authenticateLoginReq(request);
+            if (response.get("Message").equalsIgnoreCase("Not processed")){
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            } else if (response.get("Message").equalsIgnoreCase("User not found!")) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            } else if (response.get("Message").equalsIgnoreCase("Password does not match!")) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            } else {
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
         } catch (Exception e) {
             throw new RuntimeException("Trouble processing request:\n"+e);
         } finally {
@@ -65,7 +72,6 @@ public class Routes {
             return new ResponseEntity<>(status, HttpStatus.OK);
         } catch (Exception e) {
             log.error("{} {}", e.getClass().getSimpleName(), e.getMessage());
-            HashMap<String, String> response = new HashMap<>();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

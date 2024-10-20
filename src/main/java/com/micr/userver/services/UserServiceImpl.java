@@ -19,6 +19,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     UsersCollection userDb;
 
+    @Autowired
+    LoggingServiceImpl logService;
+
     public UserDO createNewUser(UserDO request) {
         UserDO status = new UserDO();
         try {
@@ -35,10 +38,6 @@ public class UserServiceImpl implements UserService {
             status = savedUser;
         } catch (Exception e) {
             log.error(e.getClass().getSimpleName());
-            if (e.getClass().getSimpleName().equals("DuplicateKeyException")) {
-                response.put("Error", "User email already registered!");
-                return new ResponseEntity<>(response,HttpStatus.CONFLICT);
-            } else {}
             status = null;
         }
         return status;
@@ -55,7 +54,7 @@ public class UserServiceImpl implements UserService {
             log.info("User with matching email found!!!: {}", user);
             if (user == null) {
                 responseMessage.put("Message", "User not found!");
-                //logService.addUnknownUserLoginAttempts(request.getEmail());
+                logService.addUnknownUserLoginAttempts(request.getEmail());
                 return responseMessage;
             } else if (!user.getPassword().equals(request.getPassword())) {
                 responseMessage.put("Message", "Password does not match!");
