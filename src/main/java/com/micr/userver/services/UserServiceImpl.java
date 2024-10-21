@@ -32,9 +32,9 @@ public class UserServiceImpl implements UserService {
                     request.getEmail(),
                     request.getPassword()
             );
-            System.out.println("requested user: "+newUser);
+            log.info("requested user: {}", newUser);
             UserDO savedUser = userDb.save(newUser);
-            System.out.println("Newly created user: "+savedUser);
+            log.info("Newly created user: {}", savedUser);
             status = savedUser;
         } catch (Exception e) {
             log.error(e.getClass().getSimpleName());
