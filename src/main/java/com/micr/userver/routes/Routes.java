@@ -6,10 +6,15 @@ import com.micr.userver.documentobject.LoginParamsDO;
 import com.micr.userver.documentobject.UserDO;
 import com.micr.userver.services.LoggingServiceImpl;
 import com.micr.userver.services.UserServiceImpl;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.config.web.server.ServerHttpSecurity.CsrfSpec;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.HashMap;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RestController()
@@ -74,6 +81,11 @@ public class Routes {
             log.error("{} {}", e.getClass().getSimpleName(), e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/getCSRF_Token")
+    public CsrfToken getCsrfToken(HttpServletRequest request) {
+        return (CsrfToken) request.getAttribute("_csrf");
     }
 
 }
