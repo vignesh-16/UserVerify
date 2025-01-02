@@ -7,11 +7,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.micr.userver.documentobject.UserDO;
+
 public class UserPrincipal implements UserDetails {
 
-    private Users principal;
+    //private Users principal;
+    private UserDO principal;
 
-    public UserPrincipal(Users user) {
+    public UserPrincipal(UserDO user) {
         this.principal = user;
     }
 
@@ -27,7 +30,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public String getUsername() {
-        return principal.getUsername();
+        return principal.getFullname();
     }
     
 }
