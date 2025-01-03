@@ -1,14 +1,11 @@
-package com.micr.userver.documentobject;
+package com.micr.userver.model;
 
-import com.mongodb.internal.connection.Time;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.stereotype.Component;
-
-import com.mongodb.lang.NonNull;
 
 @Component
 @Document(collection = "users")

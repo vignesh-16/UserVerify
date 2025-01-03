@@ -1,10 +1,7 @@
 package com.micr.userver.routes;
 
-import com.micr.userver.collections.LogsCollection;
-import com.micr.userver.collections.UsersCollection;
-import com.micr.userver.documentobject.LoginParamsDO;
-import com.micr.userver.documentobject.UserDO;
-import com.micr.userver.services.LoggingServiceImpl;
+import com.micr.userver.model.UserDO;
+import com.micr.userver.repository.UsersCollection;
 import com.micr.userver.services.UserServiceImpl;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +10,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.config.web.server.ServerHttpSecurity.CsrfSpec;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.rmi.ServerException;
 import java.util.HashMap;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 
@@ -38,45 +34,22 @@ public class Routes {
     @Autowired
     UserServiceImpl userService;
 
-    @Autowired
-    LoggingServiceImpl logService;
-
-    @PostMapping("/login")
-    public ResponseEntity<?> userLogin(@RequestBody LoginParamsDO request) {
-        try {
-            HashMap<String, String> response = userService.authenticateLoginReq(request);
-            if (response.get("Message").equalsIgnoreCase("Not processed")){
-                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-            } else if (response.get("Message").equalsIgnoreCase("User not found!")) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            } else if (response.get("Message").equalsIgnoreCase("Password does not match!")) {
-                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-            } else {
-                return new ResponseEntity<>(HttpStatus.OK);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Trouble processing request:\n"+e);
-        } finally {
-            log.info("Request processed!");
-        }
-    }
-    
     @GetMapping("/user")
     public String getMethodName() {
         return "name: user, email: user@gmail.com, accountType: member";
     }
 
-    @PostMapping("/createuser")
-    public ResponseEntity<?> createNewUser(@RequestBody UserDO req) throws RuntimeException {
+    @PostMapping("/createUser")
+    public ResponseEntity<?> createNewUser(@RequestBody UserDO req) throws ServerException {
         try {
             HashMap<String, UserDO> status = new HashMap<>();
             UserDO response = userService.createNewUser(req);
             if (response != null) {
                 status.put("newUser", response);
             } else {
-                throw new RuntimeException("Could not create new user");
+                throw new ServerException("Could not create new user");
             }
-            return new ResponseEntity<>(status, HttpStatus.OK);
+            return new ResponseEntity<>(status, HttpStatus.CONFLICT);
         } catch (Exception e) {
             log.error("{} {}", e.getClass().getSimpleName(), e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

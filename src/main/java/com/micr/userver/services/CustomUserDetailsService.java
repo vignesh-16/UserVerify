@@ -6,8 +6,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.micr.userver.collections.UsersCollection;
-import com.micr.userver.documentobject.UserDO;
+import com.micr.userver.repository.UsersCollection;
+import com.micr.userver.model.UserDO;
 import com.micr.userver.model.UserPrincipal;
 
 @Service
