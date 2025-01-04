@@ -4,6 +4,7 @@ import com.micr.userver.model.UserDO;
 import com.micr.userver.repository.UsersCollection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import org.apache.logging.log4j.LogManager;
@@ -17,6 +18,8 @@ public class UserServiceImpl implements UserService {
     @Autowired
     UsersCollection userDb;
 
+    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+
     public UserDO createNewUser(UserDO request) {
         UserDO status = new UserDO();
         try {
@@ -27,6 +30,7 @@ public class UserServiceImpl implements UserService {
                     request.getEmail(),
                     request.getPassword()
             );
+            newUser.setPassword(encoder.encode(request.getPassword()));
             log.info("requested user: {}", newUser);
             UserDO savedUser = userDb.save(newUser);
             log.info("Newly created user: {}", savedUser);

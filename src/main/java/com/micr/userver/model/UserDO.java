@@ -113,7 +113,7 @@ public class UserDO {
                 '}';
     }
 
-    public UserDO () { this.id = new ObjectId().toHexString(); }
+    public UserDO () { this.id = new ObjectId().toString(); }
 
     public UserDO ( String firstname, String lastname, String fullname, String email, String password ) {
         this();
