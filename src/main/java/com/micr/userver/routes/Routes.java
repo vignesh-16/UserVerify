@@ -1,5 +1,6 @@
 package com.micr.userver.routes;
 
+import com.micr.userver.model.LoginParamsDo;
 import com.micr.userver.model.UserDO;
 import com.micr.userver.repository.UsersCollection;
 import com.micr.userver.services.UserServiceImpl;
@@ -39,6 +40,11 @@ public class Routes {
         return "name: user, email: user@gmail.com, accountType: member";
     }
 
+    @PostMapping("/login")
+    public String userLogin(@RequestBody LoginParamsDo request) {
+        return userService.verifyUser(request);
+    }
+
     @PostMapping("/createUser")
     public ResponseEntity<?> createNewUser(@RequestBody UserDO req) throws ServerException {
         try {
@@ -49,7 +55,7 @@ public class Routes {
             } else {
                 throw new ServerException("Could not create new user");
             }
-            return new ResponseEntity<>(status, HttpStatus.CONFLICT);
+            return new ResponseEntity<>(status, HttpStatus.OK);
         } catch (Exception e) {
             log.error("{} {}", e.getClass().getSimpleName(), e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
