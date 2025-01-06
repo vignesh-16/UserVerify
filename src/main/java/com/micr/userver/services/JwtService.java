@@ -10,6 +10,8 @@ import java.util.Map;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.KeyGenerator;
@@ -46,6 +48,14 @@ public class JwtService {
     private Key getKey() {
         byte[] keyInBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyInBytes);
+    }
+
+    public String extractUserMail(String token) {
+        return "";
+    }
+
+    public boolean validateToken(String token, UserDetails userDetails) {
+        return true;
     }
 
 }

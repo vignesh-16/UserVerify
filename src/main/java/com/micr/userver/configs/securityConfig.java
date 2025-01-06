@@ -13,7 +13,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.micr.userver.filters.JwtFilter;
 import com.micr.userver.services.CustomUserDetailsService;
 
 @Configuration
@@ -22,6 +24,9 @@ public class securityConfig {
 
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
+
+    @Autowired
+    private JwtFilter jwtFilter;
 
     @Bean
     public SecurityFilterChain secFilterChain(HttpSecurity httpsecurity) throws Exception {
@@ -33,6 +38,7 @@ public class securityConfig {
         );
         httpsecurity.formLogin(Customizer.withDefaults());
         httpsecurity.httpBasic(Customizer.withDefaults());
+        httpsecurity.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return httpsecurity.build();
     }
 
